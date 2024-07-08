@@ -58,9 +58,9 @@ class Menu:
         menu_options = [
             "1. Friends",
             "2. Groups",
-            "3. Add expanses"
-            "4. Activity"
-            "5. Account"
+            "3. Add expanses",
+            "4. Activity",
+            "5. Account",
             "6. Go Back"
         ]
 
@@ -125,7 +125,7 @@ class Menu:
             "2. Edit Email",
             "3. Edit Password",
             "4. Edit Phone number",
-            "5. Show Info"
+            "5. Show Info",
             "6. Go Back"
         ]
 
