@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/Aum Zaveri/PythonProjects/SplitwiseClone/SpliwiseCloneDB.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="0"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="125"/><column_width id="3" width="2243"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,15:mainsqlite_sequence"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1">CREATE TABLE Users (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Full_name TEXT,
+    Email TEXT UNIQUE,
+    Phone_number TEXT UNIQUE,
+    Password TEXT
+);
+
+CREATE TABLE Transactions (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Title TEXT,
+    Amount REAL,
+    Date TEXT,
+    Paid_by INTEGER,
+    Transaction_type TEXT,  -- 'friend' or 'group'
+    Split_method TEXT,      -- 'split_equally', 'full_repayment', etc.
+    Group_id INTEGER,       -- NULL if it's a friend transaction
+    FOREIGN KEY (Paid_by) REFERENCES Users(Id),
+    FOREIGN KEY (Group_id) REFERENCES Groups(Id)
+);
+
+
+CREATE TABLE FriendBalances (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    User_id INTEGER,
+    Friend_id INTEGER,
+    Balance REAL,
+    FOREIGN KEY (User_id) REFERENCES Users(Id),
+    FOREIGN KEY (Friend_id) REFERENCES Users(Id)
+);
+
+
+CREATE TABLE Groups (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Group_name TEXT,
+    Created_by INTEGER,
+    FOREIGN KEY (Created_by) REFERENCES Users(Id)
+);
+
+CREATE TABLE GroupMembers (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Group_id INTEGER,
+    Member_id INTEGER,
+    FOREIGN KEY (Group_id) REFERENCES Groups(Id),
+    FOREIGN KEY (Member_id) REFERENCES Users(Id)
+);
+
+CREATE TABLE GroupParticipants (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Transaction_id INTEGER,
+    User_id INTEGER,
+    FOREIGN KEY (Transaction_id) REFERENCES Transactions(Id),
+    FOREIGN KEY (User_id) REFERENCES Users(Id)
+);</sql><current_tab id="0"/></tab_sql></sqlb_project>
