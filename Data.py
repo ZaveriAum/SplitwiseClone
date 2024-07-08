@@ -7,6 +7,9 @@ class Data:
         self.conn = sqlite3.connect('SpliwiseCloneDB.db')
         self.cursor = self.conn.cursor()
 
+    def start_connection(self):
+        self.conn = sqlite3.connect('SpliwiseCloneDB.db')
+        self.cursor = self.conn.cursor()
 # ========================================= User Operations =============================================
     def create_user(self, full_name, email, password, phone_number):
         query = '''INSERT INTO Users (Full_name, Email, Password, Phone_number)
