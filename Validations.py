@@ -27,7 +27,7 @@ class Validations:
             if Utilities.validate_phone_number(phone_number):
                 break
         self.data.create_user(full_name, email, password, phone_number)
-        self.login()
+        # self.login()
 
     def login(self):
         email = input("Please enter your email :- ")

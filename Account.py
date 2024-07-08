@@ -1,5 +1,6 @@
 from Data import Data
 
+
 class Account:
 
     def __init__(self, email):
