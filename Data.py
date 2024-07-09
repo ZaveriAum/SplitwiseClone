@@ -10,6 +10,7 @@ class Data:
     def start_connection(self):
         self.conn = sqlite3.connect('SpliwiseCloneDB.db')
         self.cursor = self.conn.cursor()
+
 # ========================================= User Operations =============================================
     def create_user(self, full_name, email, password, phone_number):
         query = '''INSERT INTO Users (Full_name, Email, Password, Phone_number)
@@ -60,7 +61,43 @@ class Data:
         self.conn.commit()
 
     # ========================================= Friend Creation =============================================
+    def get_friends(self, user_id):
+        connection = sqlite3.connect('your_database.db')
+        cursor = connection.cursor()
 
+        query = """
+            SELECT 
+                user_id AS friend_id, 
+                balance 
+            FROM FriendBalances 
+            WHERE friend_id = ?
+
+            UNION
+
+            SELECT 
+                friend_id, 
+                balance 
+            FROM FriendBalances 
+            WHERE user_id = ?;
+            """
+
+        self.cursor.execute(query, (user_id, user_id))
+        friends = self.cursor.fetchall()
+
+        return friends
+
+    def settle_up(self, user_id, friend_id):
+        query = """
+            UPDATE FriendBalances
+            SET Balance = 0
+            WHERE (user_id = ? AND friend_id = ?)
+               OR (user_id = ? AND friend_id = ?);
+            """
+        try:
+            self.cursor.execute(query, (user_id, friend_id, friend_id, user_id))
+            self.conn.commit()
+        except Exception as e:
+            print(e)
     # ========================================= Group Creation =============================================
 
     def close_connection(self):

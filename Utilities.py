@@ -32,9 +32,3 @@ class Utilities:
             return True
         else:
             return False
-
-
-
-
-
-

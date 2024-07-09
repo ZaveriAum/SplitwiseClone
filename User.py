@@ -1,11 +1,13 @@
 from Data import Data
 
 
-class Account:
+class User:
 
     def __init__(self, email):
         self.data = Data()
         self.user = self.data.get_user_info(email)
+        # Here user is structured as user[0] = Id, user[1] = Full_name, user[2] = Email, user[3] = Phone_number,
+        #                            user[4] = Password
 
     def edit_full_name(self):
         while True:
@@ -42,4 +44,4 @@ class Account:
     def show_user_info(self):
         print(f"Full name: {self.user[1]}")
         print(f"Email: {self.user[2]}")
-        print(f"Phone number: {self.user[4]}")
+        print(f"Phone number: {self.user[3]}")

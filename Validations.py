@@ -1,5 +1,7 @@
 from Utilities import Utilities
+from User import User
 from Data import Data
+import globals
 
 
 class Validations:
@@ -27,7 +29,6 @@ class Validations:
             if Utilities.validate_phone_number(phone_number):
                 break
         self.data.create_user(full_name, email, password, phone_number)
-        # self.login()
 
     def login(self):
         email = input("Please enter your email :- ")
@@ -35,7 +36,7 @@ class Validations:
         user_id = self.data.get_user_id_if_password_matches(email, password)
         if user_id:
             print(f"Login successful. Your User id is {user_id}.")
-            self.email = email
+            globals.USER = User(email)
             return True
         else:
             print("Invalid email or password.")

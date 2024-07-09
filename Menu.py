@@ -2,15 +2,17 @@ import shutil
 import sys
 
 from Validations import Validations
-from Account import Account
+from Friends import Friends
+import globals
 
 
 class Menu:
 
     def __init__(self):
         self.val = Validations()
-        self.acc = None
+        self.friends = Friends()
 
+# ----------------------------------------------------- Main Menu -----------------------------------------------------
     @staticmethod
     def print_menu():
         menu_title = "Welcome to SplitWiseClone"
@@ -41,7 +43,6 @@ class Menu:
                     self.val.sign_up()
                 elif choice == 2:
                     if self.val.login():
-                        self.acc = Account(self.val.email)
                         self.submenu()
                     else:
                         continue
@@ -53,6 +54,7 @@ class Menu:
             except ValueError:
                 print("Invalid input. Please enter a valid number.")
 
+# ------------------------------------------------------ Sub Menu -----------------------------------------------------
     @staticmethod
     def print_submenu():
         menu_options = [
@@ -60,7 +62,7 @@ class Menu:
             "2. Groups",
             "3. Add expanses",
             "4. Activity",
-            "5. Account",
+            "5. Profile",
             "6. Go Back"
         ]
 
@@ -79,7 +81,7 @@ class Menu:
             try:
                 choice = int(input("Please enter your choice: "))
                 if choice == 1:
-                    self.val.sign_up()
+                    self.friends_menu()
                 elif choice == 2:
                     self.val.login()
                 elif choice == 3:
@@ -95,6 +97,74 @@ class Menu:
             except ValueError:
                 print("Invalid input. Please enter a valid number.")
 
+# ---------------------------------------------------- Friends Menu ----------------------------------------------------
+    @staticmethod
+    def print_friend_menu():
+        menu_options = [
+            "1. List Friends",
+            "2. Add Friend",
+            "3. Go Back"
+        ]
+
+        print("=" * shutil.get_terminal_size().columns)
+
+        # Print menu options
+        for option in menu_options:
+            print(option.center(shutil.get_terminal_size().columns))
+
+        print("=" * shutil.get_terminal_size().columns)
+
+    def friends_menu(self):
+        while True:
+            Menu.print_friend_menu()
+
+            try:
+                choice = int(input("Please enter your choice: "))
+                if choice == 1:
+                    self.friends.display_friends()
+                    self.friends_submenu()
+                elif choice == 2:
+                    pass
+                elif choice == 3:
+                    self.submenu()
+                else:
+                    print("Invalid choice. Please enter a number between 1 and 3.")
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+
+    @staticmethod
+    def print_friend_submenu():
+        menu_options = [
+            "1. Settle Up ",
+            "2. Go Back"
+        ]
+
+        print("=" * shutil.get_terminal_size().columns)
+
+        # Print menu options
+        for option in menu_options:
+            print(option.center(shutil.get_terminal_size().columns))
+
+        print("=" * shutil.get_terminal_size().columns)
+
+    def friends_submenu(self):
+        while True:
+            Menu.print_friend_submenu()
+
+            try:
+                choice = int(input("Please enter your choice: "))
+                if choice == 1:
+                    choice = int(input("Please enter the friend id you wanna settle up with: "))
+                    globals.USER.data.settle_up(globals.USER.user[0], choice)
+                elif choice == 2:
+                    self.friends_menu()
+                else:
+                    print("Invalid choice. Please enter a number between 1 and 3.")
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+
+# --------------------------------------------------- Account Menu -----------------------------------------------------
+
     def account_menu(self):
         while True:
             Menu.printed_menu_account()
@@ -102,15 +172,15 @@ class Menu:
             try:
                 choice = int(input("Please enter your choice: "))
                 if choice == 1:
-                    self.acc.edit_full_name()
+                    globals.USER.edit_full_name()
                 elif choice == 2:
-                    self.acc.edit_email()
+                    globals.USER.edit_email()
                 elif choice == 3:
-                    self.acc.edit_password()
+                    globals.USER.edit_password()
                 elif choice == 4:
-                    self.acc.edit_phone_number()
+                    globals.USER.edit_phone_number()
                 elif choice == 5:
-                    self.acc.show_user_info()
+                    globals.USER.show_user_info()
                 elif choice == 6:
                     self.submenu()
                 else:
