@@ -1,10 +1,10 @@
-from Data import Data
+import globals
 
 
 class User:
 
     def __init__(self, email):
-        self.data = Data()
+        self.data = globals.DATA
         self.user = self.data.get_user_info(email)
         # Here user is structured as user[0] = Id, user[1] = Full_name, user[2] = Email, user[3] = Phone_number,
         #                            user[4] = Password

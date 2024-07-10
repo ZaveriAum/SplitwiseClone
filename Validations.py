@@ -1,13 +1,12 @@
 from Utilities import Utilities
-from User import User
-from Data import Data
 import globals
+from User import User
 
 
 class Validations:
 
     def __init__(self):
-        self.data = Data()
+        self.data = globals.DATA
         self.email = ""
 
     def sign_up(self):

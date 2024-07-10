@@ -1,7 +1,7 @@
-from Data import Data
+import globals
 from Menu import Menu
 
-data = Data()
+data = globals.DATA
 menu = Menu()
 
 menu.menu()

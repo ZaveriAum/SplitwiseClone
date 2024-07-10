@@ -98,6 +98,18 @@ class Data:
             self.conn.commit()
         except Exception as e:
             print(e)
+
+    def add_friend(self, user_id, friend_id):
+        try:
+            query = '''INSERT INTO FriendBalances (User_id, Friend_id, Balance)
+                       VALUES (?, ?, ?)'''
+            data = (user_id, friend_id, 0)
+            self.cursor.execute(query, data)
+            self.conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error occurred: {e}")
+            self.conn.rollback()  # Rollback the transaction if there's an error
+
     # ========================================= Group Creation =============================================
 
     def close_connection(self):
