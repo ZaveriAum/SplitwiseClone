@@ -10,7 +10,7 @@ class Friends:
     def display_friends(self):
         friends = self.data.get_friends(globals.USER.user[0])
         for friend in friends:
-            print(f"Friend ID: {friend[0]}, Balance: {friend[1]}")
+            print(f"Friend Full name: {friend[0]}, Balance: {friend[1]}")
 
     def settle_up(self):
         choice = int(input("Please enter the friend id you wanna settle up with: "))

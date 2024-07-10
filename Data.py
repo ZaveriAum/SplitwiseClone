@@ -62,7 +62,7 @@ class Data:
 
     # ========================================= Friend Creation =============================================
     def get_friends(self, user_id):
-        connection = sqlite3.connect('your_database.db')
+        connection = sqlite3.connect('SpliwiseCloneDB.db')
         cursor = connection.cursor()
 
         query = """
