@@ -124,7 +124,7 @@ class Menu:
                     self.friends.display_friends()
                     self.friends_submenu()
                 elif choice == 2:
-                    pass
+                    self.friends.add_friend(globals.USER.user[0])
                 elif choice == 3:
                     self.submenu()
                 else:
@@ -154,8 +154,7 @@ class Menu:
             try:
                 choice = int(input("Please enter your choice: "))
                 if choice == 1:
-                    choice = int(input("Please enter the friend id you wanna settle up with: "))
-                    globals.USER.data.settle_up(globals.USER.user[0], choice)
+                    self.friends.settle_up()
                 elif choice == 2:
                     self.friends_menu()
                 else:
