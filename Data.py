@@ -62,9 +62,6 @@ class Data:
 
     # ========================================= Friend Creation =============================================
     def get_friends(self, user_id):
-        connection = sqlite3.connect('your_database.db')
-        cursor = connection.cursor()
-
         query = """
             SELECT 
                 user_id AS friend_id, 
@@ -85,6 +82,16 @@ class Data:
         friends = self.cursor.fetchall()
 
         return friends
+
+    def get_friend_name(self, friends_id):
+        friends_name = []
+        for friend in friends_id:
+            query = '''SELECT Full_name FROM Users WHERE Id = ?'''
+            self.cursor.execute(query, (friend[0],))
+            result = self.cursor.fetchone()
+            if result:
+                friends_name.append(result[0])  # Append the name only, not the tuple
+        return friends_name
 
     def settle_up(self, user_id, friend_id):
         query = """
