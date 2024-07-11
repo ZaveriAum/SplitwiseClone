@@ -4,6 +4,7 @@ import re
 class Utilities:
     def __init__(self):
         pass
+
     @staticmethod
     def valid_email(email):
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'

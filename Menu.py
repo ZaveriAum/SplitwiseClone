@@ -9,6 +9,7 @@ import globals
 class Menu:
 
     def __init__(self):
+        self.friends_list_initialized = False
         self.val = Validations()
         self.friends = Friends()
 
@@ -83,7 +84,7 @@ class Menu:
                 if choice == 1:
                     self.friends_menu()
                 elif choice == 2:
-                    self.val.login()
+                    self.group_menu()
                 elif choice == 3:
                     print("Exiting SplitWiseClone. Goodbye!")
                 elif choice == 4:
@@ -121,10 +122,9 @@ class Menu:
             try:
                 choice = int(input("Please enter your choice: "))
                 if choice == 1:
-                    one_time_done = False
-                    if not one_time_done:
+                    if not self.friends_list_initialized:
                         globals.FRIENDS_LIST = self.friends.get_friends_info()
-                        one_time_done = True
+                        self.friends_list_initialized = True
                     self.friends.display_friends()
                     self.friends_submenu()
                 elif choice == 2:
@@ -154,6 +154,100 @@ class Menu:
     def friends_submenu(self):
         while True:
             Menu.print_friend_submenu()
+
+            try:
+                choice = int(input("Please enter your choice: "))
+                if choice == 1:
+                    self.friends.settle_up()
+                elif choice == 2:
+                    self.friends_menu()
+                else:
+                    print("Invalid choice. Please enter a number between 1 and 3.")
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+
+# ---------------------------------------------------- Group Menu ------------------------------------------------------
+    @staticmethod
+    def printed_group_menu():
+        menu_options = [
+            "1. List Groups",
+            "2. Add Group",
+            "3. Go Back"
+        ]
+
+        print("=" * shutil.get_terminal_size().columns)
+
+        # Print menu options
+        for option in menu_options:
+            print(option.center(shutil.get_terminal_size().columns))
+
+        print("=" * shutil.get_terminal_size().columns)
+
+    def group_menu(self):
+        while True:
+            Menu.printed_group_menu()
+
+            try:
+                choice = int(input("Please enter your choice: "))
+                if choice == 1:
+                    self.group_submenu()
+                elif choice == 2:
+                    pass
+                elif choice == 3:
+                    self.submenu()
+                else:
+                    print("Invalid choice. Please enter a number between 1 and 3.")
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+
+    @staticmethod
+    def printed_group_submenu():
+        menu_options = [
+            "1. List Group Members",
+            "2. Go Back"
+        ]
+
+        print("=" * shutil.get_terminal_size().columns)
+
+        # Print menu options
+        for option in menu_options:
+            print(option.center(shutil.get_terminal_size().columns))
+
+        print("=" * shutil.get_terminal_size().columns)
+
+    def group_submenu(self):
+        while True:
+            Menu.printed_group_submenu()
+
+            try:
+                choice = int(input("Please enter your choice: "))
+                if choice == 1:
+                    self.friends.settle_up()
+                elif choice == 2:
+                    self.friends_menu()
+                else:
+                    print("Invalid choice. Please enter a number between 1 and 3.")
+            except ValueError:
+                (print("Invalid input. Please enter a valid number."))
+
+    @staticmethod
+    def printed_group_subsubmenu():
+        menu_options = [
+            "1. Add member",
+            "2. Go Back"
+        ]
+
+        print("=" * shutil.get_terminal_size().columns)
+
+        # Print menu options
+        for option in menu_options:
+            print(option.center(shutil.get_terminal_size().columns))
+
+        print("=" * shutil.get_terminal_size().columns)
+
+    def group_subsubmenu(self):
+        while True:
+            Menu.printed_group_subsubmenu()
 
             try:
                 choice = int(input("Please enter your choice: "))
