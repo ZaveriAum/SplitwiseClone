@@ -83,15 +83,17 @@ class Data:
 
         return friends
 
-    def get_friend_name(self, friends_id):
-        friends_name = []
+    def get_friend_info(self, friends_id):
+        friends = []
         for friend in friends_id:
-            query = '''SELECT Full_name FROM Users WHERE Id = ?'''
+            query = '''SELECT * FROM Users WHERE Id = ?'''
             self.cursor.execute(query, (friend[0],))
             result = self.cursor.fetchone()
             if result:
-                friends_name.append(result[0])  # Append the name only, not the tuple
-        return friends_name
+                result = list(result)
+                result.append(friend[1])
+                friends.append(result)  # Append the name only, not the tuple
+        return friends
 
     def settle_up(self, user_id, friend_id):
         query = """

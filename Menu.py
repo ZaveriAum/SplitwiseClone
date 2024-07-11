@@ -121,6 +121,10 @@ class Menu:
             try:
                 choice = int(input("Please enter your choice: "))
                 if choice == 1:
+                    one_time_done = False
+                    if not one_time_done:
+                        globals.FRIENDS_LIST = self.friends.get_friends_info()
+                        one_time_done = True
                     self.friends.display_friends()
                     self.friends_submenu()
                 elif choice == 2:
