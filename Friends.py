@@ -35,5 +35,3 @@ class Friends:
                 print(f"{friend[1]} owes you ${friend[5]} - friend's id: {friend[0]}")
             else:
                 print(f"You owe {friend[1]} ${abs(friend[5])} - friend's id: {friend[0]}")
-
-
