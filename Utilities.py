@@ -6,6 +6,27 @@ class Utilities:
         pass
 
     @staticmethod
+    def get_valid_integer(prompt):
+        while True:
+            user_input = input(prompt)
+            try:
+                # Attempt to convert the input to an integer
+                value = int(user_input)
+                return value  # Return the valid integer
+            except ValueError:
+                # If conversion fails, prompt the user again
+                print("Invalid input. Please enter a valid integer.")
+
+    @staticmethod
+    def get_valid_string(prompt="Enter a non-empty string: "):
+        while True:
+            user_input = input(prompt).strip()  # Strip leading and trailing whitespace
+            if user_input:  # Check if the input is not an empty string
+                return user_input  # Return the valid string
+            else:
+                print("Invalid input. The string cannot be empty.")
+
+    @staticmethod
     def valid_email(email):
         pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 

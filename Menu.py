@@ -3,6 +3,7 @@ import sys
 
 from Validations import Validations
 from Friends import Friends
+from Groups import Groups
 import globals
 
 
@@ -12,6 +13,7 @@ class Menu:
         self.friends_list_initialized = False
         self.val = Validations()
         self.friends = Friends()
+        self.groups = Groups()
 
 # ----------------------------------------------------- Main Menu -----------------------------------------------------
     @staticmethod
@@ -39,11 +41,12 @@ class Menu:
             Menu.print_menu()
 
             try:
-                choice = int(input("Please enter your choice: "))
+                choice = globals.UTI.get_valid_integer("Please enter your choice: ")
                 if choice == 1:
                     self.val.sign_up()
                 elif choice == 2:
                     if self.val.login():
+                        print(globals.GROUPS_LIST)
                         self.submenu()
                     else:
                         continue
@@ -80,7 +83,7 @@ class Menu:
             Menu.print_submenu()
 
             try:
-                choice = int(input("Please enter your choice: "))
+                choice = globals.UTI.get_valid_integer("Please enter your choice: ")
                 if choice == 1:
                     self.friends_menu()
                 elif choice == 2:
@@ -120,7 +123,7 @@ class Menu:
             Menu.print_friend_menu()
 
             try:
-                choice = int(input("Please enter your choice: "))
+                choice = globals.UTI.get_valid_integer("Please enter your choice: ")
                 if choice == 1:
                     if not self.friends_list_initialized:
                         globals.FRIENDS_LIST = self.friends.get_friends_info()
@@ -156,7 +159,7 @@ class Menu:
             Menu.print_friend_submenu()
 
             try:
-                choice = int(input("Please enter your choice: "))
+                choice = globals.UTI.get_valid_integer("Please enter your choice: ")
                 if choice == 1:
                     self.friends.settle_up()
                 elif choice == 2:
@@ -170,8 +173,8 @@ class Menu:
     @staticmethod
     def printed_group_menu():
         menu_options = [
-            "1. List Groups",
-            "2. Add Group",
+            "1. Create Group",
+            "2. List Groups",
             "3. Go Back"
         ]
 
@@ -188,11 +191,13 @@ class Menu:
             Menu.printed_group_menu()
 
             try:
-                choice = int(input("Please enter your choice: "))
+                choice = globals.UTI.get_valid_integer("Please enter your choice: ")
                 if choice == 1:
-                    self.group_submenu()
-                elif choice == 2:
                     pass
+                elif choice == 2:
+                    globals.DATA.extract_user_groups()
+                    self.groups.get_groups_involved()
+                    self.group_submenu()
                 elif choice == 3:
                     self.submenu()
                 else:
@@ -204,7 +209,8 @@ class Menu:
     def printed_group_submenu():
         menu_options = [
             "1. List Group Members",
-            "2. Go Back"
+            "2. Add Group Member",
+            "3. Go Back"
         ]
 
         print("=" * shutil.get_terminal_size().columns)
@@ -216,49 +222,22 @@ class Menu:
         print("=" * shutil.get_terminal_size().columns)
 
     def group_submenu(self):
+        group_id = globals.UTI.get_valid_integer.get_valid_integer("For further operations please enter Group id: ")
         while True:
-            Menu.printed_group_submenu()
 
             try:
-                choice = int(input("Please enter your choice: "))
+                Menu.printed_group_submenu()
+                choice = globals.UTI.get_valid_integer("Please enter your choice: ")
                 if choice == 1:
-                    self.friends.settle_up()
+                    self.groups.get_members_in_groups_involved(group_id)
                 elif choice == 2:
-                    self.friends_menu()
+                    pass
+                elif choice == 3:
+                    self.group_menu()
                 else:
                     print("Invalid choice. Please enter a number between 1 and 3.")
             except ValueError:
                 (print("Invalid input. Please enter a valid number."))
-
-    @staticmethod
-    def printed_group_subsubmenu():
-        menu_options = [
-            "1. Add member",
-            "2. Go Back"
-        ]
-
-        print("=" * shutil.get_terminal_size().columns)
-
-        # Print menu options
-        for option in menu_options:
-            print(option.center(shutil.get_terminal_size().columns))
-
-        print("=" * shutil.get_terminal_size().columns)
-
-    def group_subsubmenu(self):
-        while True:
-            Menu.printed_group_subsubmenu()
-
-            try:
-                choice = int(input("Please enter your choice: "))
-                if choice == 1:
-                    self.friends.settle_up()
-                elif choice == 2:
-                    self.friends_menu()
-                else:
-                    print("Invalid choice. Please enter a number between 1 and 3.")
-            except ValueError:
-                print("Invalid input. Please enter a valid number.")
 
 # --------------------------------------------------- Account Menu -----------------------------------------------------
 
@@ -267,7 +246,7 @@ class Menu:
             Menu.printed_menu_account()
 
             try:
-                choice = int(input("Please enter your choice: "))
+                choice = globals.UTI.get_valid_integer("Please enter your choice: ")
                 if choice == 1:
                     globals.USER.edit_full_name()
                 elif choice == 2:
