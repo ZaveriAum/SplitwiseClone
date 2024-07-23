@@ -11,14 +11,14 @@ class Friends:
         return self.data.get_friend_info(friends)
 
     def settle_up(self):
-        choice = int(input("Please enter the friend id you wanna settle up with: "))
+        choice = globals.UTI.get_valid_integer("Please enter the friend id you wanna settle up with: ")
         self.data.settle_up(globals.USER.user[0], choice)
         for friend in globals.FRIENDS_LIST:
             if choice == friend[0]:
                 friend[5] = 0
 
     def add_friend(self, user_id):
-        friend_email = input("Please enter your friend's email: ")
+        friend_email = globals.UTI.get_valid_string("Please enter your friend's email: ")
         user = self.data.get_user_info(friend_email)
         friend = list(user)
         friend.append(0)
