@@ -1,12 +1,14 @@
+import os
 import sqlite3
-
+import os
 import globals
+DB_LOCATION = os.environ.get('DB_LOCATION')
 
 
 class Data:
 
     def __init__(self):
-        self.conn = sqlite3.connect('SpliwiseCloneDB.db')
+        self.conn = sqlite3.connect(DB_LOCATION)
         self.cursor = self.conn.cursor()
 
     # ========================================= Friend Creation =============================================
@@ -73,15 +75,14 @@ class Data:
     def extract_user_groups(self):
         # Query to get groups created by or involving the current user
         query = """
-        SELECT g.Id AS Group_id, g.Group_name, g.Created_by AS Creator_id,
-         u.Full_name AS Creator_name, u.Email AS Creator_email, 
-               gm.Member_id, mu.Full_name AS Member_name, mu.Email AS Member_email
+        SELECT g.Id AS Group_id, g.Group_name, g.Created_by AS Creator_id, u.Full_name AS Creator_name, 
+        u.Email AS Creator_email, gm.Member_id, mu.Full_name AS Member_name, mu.Email AS Member_email
         FROM Groups g
-        JOIN GroupMembers gm ON g.Id = gm.Group_id
-        JOIN Users u ON g.Created_by = u.Id
-        JOIN Users mu ON gm.Member_id = mu.Id
-        WHERE g.Created_by = ?
-           OR g.Id IN (SELECT Group_id FROM GroupMembers WHERE Member_id = ?);
+        LEFT JOIN GroupMembers gm ON g.Id = gm.Group_id
+        LEFT JOIN Users u ON g.Created_by = u.Id
+        LEFT JOIN Users mu ON gm.Member_id = mu.Id
+        WHERE g.Created_by = ? OR gm.Member_id = ?
+        ORDER BY g.Id;
         """
         self.cursor.execute(query, (globals.USER.Id, globals.USER.Id))
         rows = self.cursor.fetchall()
@@ -112,6 +113,32 @@ class Data:
                 "full_name": member_name,
                 "email": member_email
             }
+
+    def create_group(self, group_name):
+        try:
+            self.cursor.execute('''SELECT Id FROM Groups ORDER BY Id DESC LIMIT 1 ''')
+            last_id = self.cursor.fetchone()
+            query = '''INSERT INTO Groups (Group_name,Created_by)
+                    Values(?, ?)'''
+            self.cursor.execute(query, (group_name, globals.USER.Id))
+            self.conn.commit()
+            # Create the new group entry
+            new_group = {
+                "group_name": group_name,
+                "created_by": {
+                    "user_id": globals.USER.Id,
+                    "full_name": globals.USER.full_name,
+                    "email": globals.USER.email,
+                    "is_current_user": True  # Assume the creator is not the current user
+                },
+                "members": {}
+            }
+
+            # Insert the new group into the data dictionary
+            globals.GROUPS_LIST[last_id[0]] = new_group
+            print("Your new group was successfully created")
+        except Exception as e:
+            print(e)
 
     # ========================================= User Operations =============================================
     def create_user(self, full_name, email, password, phone_number):

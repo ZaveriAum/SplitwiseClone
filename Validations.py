@@ -30,7 +30,7 @@ class Validations:
         password = globals.UTI.get_valid_string("Please enter your password :- ")
         user_id = self.data.get_user_id_if_password_matches(email, password)
         if user_id:
-            print(f"Login successful. Your User id is {user_id}.")
+            print(f"Login successful")
             globals.USER = User(email)
             return True
         else:

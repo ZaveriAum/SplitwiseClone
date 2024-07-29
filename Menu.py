@@ -46,7 +46,6 @@ class Menu:
                     self.val.sign_up()
                 elif choice == 2:
                     if self.val.login():
-                        print(globals.GROUPS_LIST)
                         self.submenu()
                     else:
                         continue
@@ -193,7 +192,8 @@ class Menu:
             try:
                 choice = globals.UTI.get_valid_integer("Please enter your choice: ")
                 if choice == 1:
-                    pass
+                    group_name = globals.UTI.get_valid_string("Please enter group name: ")
+                    globals.DATA.create_group(group_name)
                 elif choice == 2:
                     globals.DATA.extract_user_groups()
                     self.groups.get_groups_involved()
@@ -222,7 +222,7 @@ class Menu:
         print("=" * shutil.get_terminal_size().columns)
 
     def group_submenu(self):
-        group_id = globals.UTI.get_valid_integer.get_valid_integer("For further operations please enter Group id: ")
+        group_id = globals.UTI.get_valid_integer("For further operations please enter Group id: ")
         while True:
 
             try:
