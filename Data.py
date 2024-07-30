@@ -59,60 +59,88 @@ class Data:
         except Exception as e:
             print(e)
 
+    def check_friend_relationship(self, user_id, friend_id):
+        # Query to check if the user_id and friend_id pair exists in the FriendBalances table
+        query = """
+        SELECT COUNT(*)
+        FROM FriendBalances
+        WHERE (User_id = ? AND Friend_id = ?) OR (User_id = ? AND Friend_id = ?);
+        """
+        self.cursor.execute(query, (user_id, friend_id, friend_id, user_id))
+        count = self.cursor.fetchone()[0]
+
+        # Return True if the relationship exists, False otherwise
+        return count > 0
+
     def add_friend(self, user_id, friend_id):
-        try:
-            query = '''INSERT INTO FriendBalances (User_id, Friend_id, Balance)
-                       VALUES (?, ?, ?)'''
-            data = (user_id, friend_id, 0)
-            self.cursor.execute(query, data)
-            self.conn.commit()
-        except sqlite3.Error as e:
-            print(f"Error occurred: {e}")
-            self.conn.rollback()  # Rollback the transaction if there's an error
+        if self.check_friend_relationship(user_id, friend_id):
+            try:
+                query = '''INSERT INTO FriendBalances (User_id, Friend_id, Balance)
+                           VALUES (?, ?, ?)'''
+                data = (user_id, friend_id, 0)
+                self.cursor.execute(query, data)
+                self.conn.commit()
+            except sqlite3.Error as e:
+                print(f"Error occurred: {e}")
+                self.conn.rollback()  # Rollback the transaction if there's an error
 
     # ========================================= Group Creation =============================================
 
     def extract_user_groups(self):
         # Query to get groups created by or involving the current user
-        query = """
+        group_query = """
         SELECT g.Id AS Group_id, g.Group_name, g.Created_by AS Creator_id, u.Full_name AS Creator_name, 
-        u.Email AS Creator_email, gm.Member_id, mu.Full_name AS Member_name, mu.Email AS Member_email
+        u.Email AS Creator_email
         FROM Groups g
-        LEFT JOIN GroupMembers gm ON g.Id = gm.Group_id
         LEFT JOIN Users u ON g.Created_by = u.Id
-        LEFT JOIN Users mu ON gm.Member_id = mu.Id
-        WHERE g.Created_by = ? OR gm.Member_id = ?
+        WHERE g.Created_by = ? OR g.Id IN (
+            SELECT Group_id FROM GroupMembers WHERE Member_id = ?
+        )
         ORDER BY g.Id;
         """
-        self.cursor.execute(query, (globals.USER.Id, globals.USER.Id))
-        rows = self.cursor.fetchall()
+        self.cursor.execute(group_query, (globals.USER.Id, globals.USER.Id))
+        group_rows = self.cursor.fetchall()
 
-        # Process the query results
-        for row in rows:
-            group_id = row[0]
-            group_name = row[1]
-            creator_id = row[2]
-            creator_name = row[3]
-            creator_email = row[4]
-            member_id = row[5]
-            member_name = row[6]
-            member_email = row[7]
+        # Process the group query results
+        for group_row in group_rows:
+            group_id = group_row[0]
+            group_name = group_row[1]
+            creator_id = group_row[2]
+            creator_name = group_row[3]
+            creator_email = group_row[4]
 
-            if group_id not in globals.GROUPS_LIST:
-                globals.GROUPS_LIST[group_id] = {
-                    "group_name": group_name,
-                    "created_by": {
-                        "user_id": creator_id,
-                        "full_name": creator_name,
-                        "email": creator_email,
-                        "is_current_user": creator_id == globals.USER.Id
-                    },
-                    "members": {}
-                }
-            globals.GROUPS_LIST[group_id]["members"][member_id] = {
-                "full_name": member_name,
-                "email": member_email
+            globals.GROUPS_LIST[group_id] = {
+                "group_name": group_name,
+                "created_by": {
+                    "user_id": creator_id,
+                    "full_name": creator_name,
+                    "email": creator_email,
+                    "is_current_user": creator_id == globals.USER.Id
+                },
+                "members": {}
             }
+
+            # Query to get all members for the current group
+            member_query = """
+            SELECT gm.Group_id, gm.Member_id, mu.Full_name AS Member_name, mu.Email AS Member_email
+            FROM GroupMembers gm
+            LEFT JOIN Users mu ON gm.Member_id = mu.Id
+            WHERE gm.Group_id = ?;
+            """
+            self.cursor.execute(member_query, (group_id,))
+            member_rows = self.cursor.fetchall()
+
+            # Process the member query results
+            for member_row in member_rows:
+                member_id = member_row[1]
+                member_name = member_row[2]
+                member_email = member_row[3]
+
+                globals.GROUPS_LIST[group_id]["members"][member_id] = {
+                    "full_name": member_name,
+                    "email": member_email
+                }
+        print(globals.GROUPS_LIST)
 
     def create_group(self, group_name):
         try:
@@ -139,6 +167,32 @@ class Data:
             print("Your new group was successfully created")
         except Exception as e:
             print(e)
+
+    def add_member(self, group_id, member_id):
+        # 1. Insert into the database table
+        self.cursor.execute('''INSERT INTO GroupMembers (Group_id, Member_id) VALUES (?, ?)''', (group_id, member_id, ))
+        self.conn.commit()
+
+        # 2. Fetch the member information from the Users table
+        member_query = '''
+            SELECT u.Id, u.Full_name, u.Email
+            FROM Users u
+            WHERE u.Id = ?;
+            '''
+        self.cursor.execute(member_query, (member_id,))
+        member_info = self.cursor.fetchone()
+
+        if member_info:
+            member_id, member_name, member_email = member_info
+
+            # Ensure the group exists in globals.GROUPS_LIST
+            if group_id in globals.GROUPS_LIST:
+                globals.GROUPS_LIST[group_id]["members"][member_id] = {
+                    "full_name": member_name,
+                    "email": member_email
+                }
+        # 3. Insert the user and the member into Friend
+        self.add_friend(globals.USER.Id, member_id)
 
     # ========================================= User Operations =============================================
     def create_user(self, full_name, email, password, phone_number):

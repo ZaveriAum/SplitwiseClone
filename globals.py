@@ -1,6 +1,7 @@
 from Data import Data
 from Utilities import Utilities
 
+
 USER = None
 DATA = Data()
 UTI = Utilities()

@@ -18,6 +18,8 @@ class Menu:
 # ----------------------------------------------------- Main Menu -----------------------------------------------------
     @staticmethod
     def print_menu():
+        globals.GROUPS_LIST = {}
+        globals.FRIENDS_LIST = []
         menu_title = "Welcome to SplitWiseClone"
         menu_options = [
             "1. Signup",
@@ -231,7 +233,8 @@ class Menu:
                 if choice == 1:
                     self.groups.get_members_in_groups_involved(group_id)
                 elif choice == 2:
-                    pass
+                    member_id = globals.UTI.get_valid_integer("Please enter member id: ")
+                    globals.DATA.add_member(group_id, member_id)
                 elif choice == 3:
                     self.group_menu()
                 else:
