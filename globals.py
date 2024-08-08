@@ -8,3 +8,4 @@ UTI = Utilities()
 
 FRIENDS_LIST = []
 GROUPS_LIST = {}
+TRANSACTIONS = {}

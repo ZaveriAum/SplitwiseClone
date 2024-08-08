@@ -1,7 +1,8 @@
 import os
 import sqlite3
-import os
 import globals
+import json
+
 DB_LOCATION = os.environ.get('DB_LOCATION')
 
 
@@ -73,13 +74,14 @@ class Data:
         return count > 0
 
     def add_friend(self, user_id, friend_id):
-        if self.check_friend_relationship(user_id, friend_id):
+        if not self.check_friend_relationship(user_id, friend_id) and user_id != friend_id:
             try:
                 query = '''INSERT INTO FriendBalances (User_id, Friend_id, Balance)
                            VALUES (?, ?, ?)'''
                 data = (user_id, friend_id, 0)
                 self.cursor.execute(query, data)
                 self.conn.commit()
+                print("Friend successfully added.")
             except sqlite3.Error as e:
                 print(f"Error occurred: {e}")
                 self.conn.rollback()  # Rollback the transaction if there's an error
@@ -169,30 +171,85 @@ class Data:
             print(e)
 
     def add_member(self, group_id, member_id):
-        # 1. Insert into the database table
-        self.cursor.execute('''INSERT INTO GroupMembers (Group_id, Member_id) VALUES (?, ?)''', (group_id, member_id, ))
-        self.conn.commit()
+        try:
+            # 1. Insert into the database table
+            self.cursor.execute('''INSERT INTO GroupMembers (Group_id, Member_id) VALUES (?, ?)''',
+                                (group_id, member_id))
+            self.conn.commit()
 
-        # 2. Fetch the member information from the Users table
-        member_query = '''
+            # 2. Fetch the member information from the Users table
+            member_query = '''
             SELECT u.Id, u.Full_name, u.Email
             FROM Users u
             WHERE u.Id = ?;
             '''
-        self.cursor.execute(member_query, (member_id,))
-        member_info = self.cursor.fetchone()
+            self.cursor.execute(member_query, (member_id,))
+            member_info = self.cursor.fetchone()
 
-        if member_info:
-            member_id, member_name, member_email = member_info
+            if member_info:
+                member_id, member_name, member_email = member_info
 
-            # Ensure the group exists in globals.GROUPS_LIST
-            if group_id in globals.GROUPS_LIST:
-                globals.GROUPS_LIST[group_id]["members"][member_id] = {
-                    "full_name": member_name,
-                    "email": member_email
+                # Ensure the group exists in globals.GROUPS_LIST
+                if group_id in globals.GROUPS_LIST:
+                    globals.GROUPS_LIST[group_id]["members"][member_id] = {
+                        "full_name": member_name,
+                        "email": member_email
+                    }
+
+                # 3. Insert the user and the member into Friend for every member of the group, including the creator
+                for existing_member_id in globals.GROUPS_LIST[group_id]["members"]:
+                    self.add_friend(int(existing_member_id), member_id)
+
+                # Also add the relationship with the creator if not already included in the members list
+                creator_id = globals.GROUPS_LIST[group_id]["created_by"]["user_id"]
+                if creator_id not in globals.GROUPS_LIST[group_id]["members"]:
+                    self.add_friend(int(creator_id), member_id)
+            else:
+                print(f"Member with ID {member_id} not found in Users table")
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+    # ======================================= Activity Operations ===========================================
+
+    def fetch_user_transactions(self):
+        query = '''
+        SELECT 
+            t.Id AS transaction_id,
+            t.Title AS title,
+            t.Amount AS amount,
+            t.Paid_by AS paid_by,
+            p.Full_name AS paid_name,
+            c.Contributor_id AS contributor_id,
+            u.Full_name AS contributor_name
+        FROM Transactions t
+        JOIN Users p ON t.Paid_by = p.Id
+        LEFT JOIN Contributors c ON t.Id = c.Transaction_id
+        LEFT JOIN Users u ON c.Contributor_id = u.Id
+        WHERE t.Paid_by = ? OR t.Id IN (
+            SELECT Transaction_id 
+            FROM Contributors 
+            WHERE Contributor_id = ?
+        );
+        '''
+
+        self.cursor.execute(query, (globals.USER.Id, globals.USER.Id))
+        rows = self.cursor.fetchall()
+
+        for row in rows:
+            transaction_id, title, amount, paid_by, paid_name, contributor_id, contributor_name = row
+            if transaction_id not in globals.TRANSACTIONS:
+                globals.TRANSACTIONS[transaction_id] = {
+                    "title": title,
+                    "amount": amount,
+                    "paid_by": paid_by,
+                    "paid_name": paid_name,
+                    "contributors": {}
                 }
-        # 3. Insert the user and the member into Friend
-        self.add_friend(globals.USER.Id, member_id)
+            if contributor_id:
+                globals.TRANSACTIONS[transaction_id]["contributors"][contributor_id] = {
+                    "name": contributor_name
+                }
 
     # ========================================= User Operations =============================================
     def create_user(self, full_name, email, password, phone_number):
@@ -222,7 +279,7 @@ class Data:
                 return user_id
         return None
 
-    # ------ Update users info
+    # ------ Update users info ------
     def update_user_full_name(self, full_name, user_id):
         self.cursor.execute('''UPDATE USERS
         SET Full_name = ? WHERE Id = ?''', (full_name, user_id))
