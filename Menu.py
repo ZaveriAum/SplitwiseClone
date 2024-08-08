@@ -4,6 +4,7 @@ import sys
 from Validations import Validations
 from Friends import Friends
 from Groups import Groups
+from Activity import Activity
 import globals
 
 
@@ -14,6 +15,7 @@ class Menu:
         self.val = Validations()
         self.friends = Friends()
         self.groups = Groups()
+        self.activity = Activity()
 
 # ----------------------------------------------------- Main Menu -----------------------------------------------------
     @staticmethod
@@ -92,7 +94,7 @@ class Menu:
                 elif choice == 3:
                     print("Exiting SplitWiseClone. Goodbye!")
                 elif choice == 4:
-                    print("Exiting SplitWiseClone. Goodbye!")
+                    self.activity_menu()
                 elif choice == 5:
                     self.account_menu()
                 elif choice == 6:
@@ -242,6 +244,37 @@ class Menu:
             except ValueError:
                 (print("Invalid input. Please enter a valid number."))
 
+# --------------------------------------------------- Activity Menu ----------------------------------------------------
+    def activity_menu(self):
+        while True:
+            Menu.printed_activity_account()
+
+            try:
+                choice = globals.UTI.get_valid_integer("Please enter your choice: ")
+                if choice == 1:
+                    globals.DATA.fetch_user_transactions()
+                    self.activity.show_activity()
+                elif choice == 2:
+                    self.submenu()
+                else:
+                    print("Invalid choice. Please enter a number between 1 and 3.")
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
+
+    @staticmethod
+    def printed_activity_account():
+        menu_options = [
+            "1. Show Activity",
+            "2. Go Back",
+        ]
+
+        print("=" * shutil.get_terminal_size().columns)
+
+        # Print menu options
+        for option in menu_options:
+            print(option.center(shutil.get_terminal_size().columns))
+
+        print("=" * shutil.get_terminal_size().columns)
 # --------------------------------------------------- Account Menu -----------------------------------------------------
 
     def account_menu(self):

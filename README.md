@@ -1,7 +1,7 @@
 Hello everyone,
 
-This is a console Splitwise clone which only contamplates the core usage of splitewise app.
-Although it has most of the functionality the splitwise app has but we have focused towards the main aspect which is corrent distribution of the money between individuals which are connected.
+This is a console Splitwise clone which only contemplates the core usage of Splitewise app.
+Although it has most of the functionality the splitwise app has, but we have focused towards the main aspect which is current distribution of the money between individuals which are connected.
 
 To run this to your machine you will require a SQLITE DB we have given script for that below.
 
@@ -13,20 +13,6 @@ CREATE TABLE Users (
     Phone_number TEXT UNIQUE,
     Password TEXT
 );
-
-CREATE TABLE Transactions (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Title TEXT,
-    Amount REAL,
-    Date TEXT,
-    Paid_by INTEGER,
-    Transaction_type TEXT,  -- 'friend' or 'group'
-    Split_method TEXT,      -- 'split_equally', 'full_repayment', etc.
-    Group_id INTEGER,       -- NULL if it's a friend transaction
-    FOREIGN KEY (Paid_by) REFERENCES Users(Id),
-    FOREIGN KEY (Group_id) REFERENCES Groups(Id)
-);
-
 
 CREATE TABLE FriendBalances (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,12 +39,20 @@ CREATE TABLE GroupMembers (
     FOREIGN KEY (Member_id) REFERENCES Users(Id)
 );
 
-CREATE TABLE GroupParticipants (
+CREATE TABLE Transactions (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Transaction_id INTEGER,
-    User_id INTEGER,
-    FOREIGN KEY (Transaction_id) REFERENCES Transactions(Id),
-    FOREIGN KEY (User_id) REFERENCES Users(Id)
+    Title TEXT NOT NULL,
+    Amount INTEGER NOT NULL,
+    Paid_by INTEGER NOT NULL,
+    Date TEXT NOT NULL,
+    FOREIGN KEY (Paid_by) REFERENCES Users(Id)
 );
 
+CREATE TABLE Contributors (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Transaction_id INTEGER NOT NULL,
+    Contributor_id INTEGER NOT NULL,
+    FOREIGN KEY (Transaction_id) REFERENCES Transactions(Id),
+    FOREIGN KEY (Contributor_id) REFERENCES Users(Id)
+);
 """""
